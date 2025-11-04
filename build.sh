@@ -5,7 +5,7 @@ white='\033[0m'
 red='\033[0;31m'
 gre='\e[0;32m'
 ZIMG=./out/arch/arm64/boot/Image.gz-dtb
-OUTPUT_DIR=./../Paradox_release
+OUTPUT_DIR=./out/final_output
 
 no_mkclean=false
 no_ccache=false
@@ -43,14 +43,16 @@ EOF
 	shift
 done
 
-export CLANG_PATH=/home/pzqqt/build_toolchain/clang-r510928-18.0.0
-export PATH=${CLANG_PATH}/bin:${PATH}
+export BUILD_CC="${HOME}/toolchains/clang-r510928"
+export BUILD_CROSS_COMPILE="${HOME}/toolchains/gcc/arm-gnu-toolchain-13.2.Rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-"
+export BUILD_CROSS_COMPILE_ARM32="${HOME}/toolchains/gcc/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-"
+export PATH=${BUILD_CC}/bin:${PATH}
 
 export ARCH=arm64
-export KBUILD_BUILD_HOST="wsl2"
-export KBUILD_BUILD_USER="pzqqt"
+export KBUILD_BUILD_HOST="ubuntu_22.04"
+export KBUILD_BUILD_USER="kui04"
 
-export LOCALVERSION=-v7.0-EOL
+export LOCALVERSION=-v7.0
 $with_ksu && export LOCALVERSION="${LOCALVERSION}-ksu"
 
 ccache_=
@@ -93,8 +95,8 @@ make -j$(nproc --all) \
 	STRIP=llvm-strip \
 	OBJCOPY=llvm-objcopy \
 	OBJDUMP=llvm-objdump \
-	CROSS_COMPILE="/home/pzqqt/build_toolchain/arm-gnu-toolchain-13.2.Rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" \
-	CROSS_COMPILE_ARM32="/home/pzqqt/build_toolchain/arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-" \
+	CROSS_COMPILE="${BUILD_CROSS_COMPILE}" \
+	CROSS_COMPILE_ARM32="${BUILD_CROSS_COMPILE_ARM32}" \
 	${make_flags}
 
 exit_code=$?
