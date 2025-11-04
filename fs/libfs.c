@@ -1291,7 +1291,7 @@ static int generic_ci_d_compare(const struct dentry *dentry, unsigned int len,
 	if (ret >= 0)
 		return ret;
 
-	if (sb_has_strict_encoding(sb))
+	if (sb_has_enc_strict_mode(sb))
 		return -EINVAL;
 fallback:
 	if (len != name->len)
@@ -1317,7 +1317,7 @@ static int generic_ci_d_hash(const struct dentry *dentry, struct qstr *str)
 		return 0;
 
 	ret = utf8_casefold_hash(um, dentry, str);
-	if (ret < 0 && sb_has_strict_encoding(sb))
+	if (ret < 0 && sb_has_enc_strict_mode(sb))
 		return -EINVAL;
 	return 0;
 }
