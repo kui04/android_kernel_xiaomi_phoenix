@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     coreutils \
     cpio \
     curl \
+    ccache \
     rsync \
     default-jdk \
     device-tree-compiler \

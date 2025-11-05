@@ -19,6 +19,7 @@ while [ $# != 0 ]; do
 		"--noccache") no_ccache=true;;
 		"--nolto") no_thinlto=true;;
 		"--ksu") with_ksu=true;;
+		"--docker") docker_support=true;;
 		"--") {
 			shift
 			while [ $# != 0 ]; do
@@ -81,6 +82,33 @@ $no_thinlto && {
 $with_ksu && {
 	./scripts/config --file out/.config -e KSU
 	./scripts/config --file out/.config -d KSU_DEBUG
+}
+
+$docker_support && {
+	cfg_file=out/.config
+	enable_opts=(
+		CONFIG_SYSVIPC SYSVIPC_SYSCTL POSIX_MQUEUE POSIX_MQUEUE_SYSCTL
+		CGROUP_PIDS CGROUP_DEVICE IPC_NS PID_NS SYSVIPC_COMPAT
+		BRIDGE_NETFILTER NETFILTER_XT_MATCH_ADDRTYPE NETFILTER_XT_MATCH_IPVS
+		IP_VS IP_VS_PROTO_TCP IP_VS_PROTO_UDP IP_VS_RR IP_VS_NFCT
+		NF_NAT_IPV6 NF_NAT_MASQUERADE_IPV6 IP6_NF_NAT IP6_NF_TARGET_MASQUERADE
+		BRIDGE_VLAN_FILTERING VLAN_8021Q NET_L3_MASTER_DEV MACVLAN IPVLAN VXLAN
+	)
+	disable_opts=(
+		NETFILTER_XT_MATCH_PHYSDEV IP_VS_IPV6 IP_VS_DEBUG IP_VS_PROTO_ESP
+		IP_VS_PROTO_AH IP_VS_PROTO_SCTP IP_VS_WRR IP_VS_LC IP_VS_WLC IP_VS_FO
+		IP_VS_OVF IP_VS_LBLC IP_VS_LBLCR IP_VS_DH IP_VS_SH IP_VS_SED IP_VS_NQ
+		IP_VS_FTP IP6_NF_TARGET_NPT VLAN_8021Q_GVRP VLAN_8021Q_MVRP MACVTAP
+		IPVTAP NET_VRF
+	)
+	for opt in "${enable_opts[@]}"; do
+		./scripts/config --file "$cfg_file" -e "$opt"
+	done
+	./scripts/config --file "$cfg_file" --set-val IP_VS_TAB_BITS 12
+	./scripts/config --file "$cfg_file" --set-val IP_VS_SH_TAB_BITS 8
+	for opt in "${disable_opts[@]}"; do
+		./scripts/config --file "$cfg_file" -d "$opt"
+	done
 }
 
 Start=$(date +"%s")
