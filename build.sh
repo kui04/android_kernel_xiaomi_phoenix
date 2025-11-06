@@ -53,8 +53,8 @@ export ARCH=arm64
 export KBUILD_BUILD_HOST="ubuntu_22.04"
 export KBUILD_BUILD_USER="kui04"
 
-export LOCALVERSION=-v7.0
-$with_ksu && export LOCALVERSION="${LOCALVERSION}-ksu"
+export LOCALVERSION=-v1.0
+$with_ksu && export LOCALVERSION="${LOCALVERSION}-ksu095"
 
 ccache_=
 (! $no_ccache) && ccache_=`which ccache` || echo -e "${yellow}Warning: ccache is not used! $white"
@@ -87,7 +87,7 @@ $with_ksu && {
 $docker_support && {
 	cfg_file=out/.config
 	enable_opts=(
-		CONFIG_SYSVIPC SYSVIPC_SYSCTL POSIX_MQUEUE POSIX_MQUEUE_SYSCTL
+		SYSVIPC SYSVIPC_SYSCTL POSIX_MQUEUE POSIX_MQUEUE_SYSCTL
 		CGROUP_PIDS CGROUP_DEVICE IPC_NS PID_NS SYSVIPC_COMPAT
 		BRIDGE_NETFILTER NETFILTER_XT_MATCH_ADDRTYPE NETFILTER_XT_MATCH_IPVS
 		IP_VS IP_VS_PROTO_TCP IP_VS_PROTO_UDP IP_VS_RR IP_VS_NFCT
