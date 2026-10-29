@@ -11,6 +11,7 @@ no_mkclean=false
 no_ccache=false
 no_thinlto=false
 with_ksu=false
+docker_support=false
 make_flags=
 
 while [ $# != 0 ]; do
@@ -36,6 +37,7 @@ operate:
     --noccache : build without ccache
     --nolto    : build without LTO
     --ksu      : build with KernelSU support
+    --docker   : build with Docker support
     -- <args>  : parameters passed directly to make
 EOF
 			exit 1
@@ -54,7 +56,7 @@ export KBUILD_BUILD_HOST="ubuntu_22.04"
 export KBUILD_BUILD_USER="kui04"
 
 export LOCALVERSION=-v1.0
-$with_ksu && export LOCALVERSION="${LOCALVERSION}-ksu095"
+$with_ksu && export LOCALVERSION="${LOCALVERSION}-ksun"
 
 ccache_=
 (! $no_ccache) && ccache_=`which ccache` || echo -e "${yellow}Warning: ccache is not used! $white"
