@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 yellow='\033[0;33m'
 white='\033[0m'
@@ -11,8 +11,29 @@ no_mkclean=false
 no_ccache=false
 no_thinlto=false
 with_ksu=false
-docker_support=false
+docker_support=true
+run_in_container=false
 make_flags=
+
+for arg in "$@"; do
+	if [ "$arg" = "--container" ]; then
+		run_in_container=true
+		break
+	fi
+done
+
+if $run_in_container; then
+	filtered_args=()
+	for arg in "$@"; do
+		[ "$arg" != "--container" ] && filtered_args+=("$arg")
+	done
+	echo -e "${yellow}Running kernel build inside Docker container...${white}"
+	docker run --rm --network=host \
+		-v "$PWD:/home/kernel-builder/work" \
+		-w /home/kernel-builder/work \
+		phoenix-kernel-builder:latest ./build.sh "${filtered_args[@]}"
+	exit $?
+fi
 
 while [ $# != 0 ]; do
 	case $1 in
@@ -21,6 +42,7 @@ while [ $# != 0 ]; do
 		"--nolto") no_thinlto=true;;
 		"--ksu") with_ksu=true;;
 		"--docker") docker_support=true;;
+		"--no-docker") docker_support=false;;
 		"--") {
 			shift
 			while [ $# != 0 ]; do
@@ -33,12 +55,14 @@ while [ $# != 0 ]; do
 			cat <<EOF
 Usage: $0 <operate>
 operate:
-    --noclean  : build without run "make mrproper"
-    --noccache : build without ccache
-    --nolto    : build without LTO
-    --ksu      : build with KernelSU support
-    --docker   : build with Docker support
-    -- <args>  : parameters passed directly to make
+    --noclean   : build without run "make mrproper"
+    --noccache  : build without ccache
+    --nolto     : build without LTO
+    --ksu       : build with KernelSU support
+    --docker    : build with Docker support (default)
+    --no-docker : build without Docker support
+    --container : run build inside Docker container
+    -- <args>   : parameters passed directly to make
 EOF
 			exit 1
 		};;
@@ -90,8 +114,10 @@ $with_ksu && {
 $docker_support && {
 	cfg_file=out/.config
 	enable_opts=(
-		SYSVIPC SYSVIPC_SYSCTL POSIX_MQUEUE POSIX_MQUEUE_SYSCTL
-		CGROUP_PIDS CGROUP_DEVICE IPC_NS PID_NS SYSVIPC_COMPAT
+		SYSVIPC SYSVIPC_SYSCTL POSIX_MQUEUE POSIX_MQUEUE_SYSCTL SYSVIPC_COMPAT
+		PID_NS IPC_NS USER_NS
+		CGROUP_PIDS CGROUP_DEVICE CFS_BANDWIDTH BLK_DEV_THROTTLING
+		NET_CLS_CGROUP CGROUP_NET_PRIO CGROUP_PERF HUGETLBFS CGROUP_HUGETLB
 		BRIDGE_NETFILTER NETFILTER_XT_MATCH_ADDRTYPE NETFILTER_XT_MATCH_IPVS
 		IP_VS IP_VS_PROTO_TCP IP_VS_PROTO_UDP IP_VS_RR IP_VS_NFCT
 		NF_NAT_IPV6 NF_NAT_MASQUERADE_IPV6 IP6_NF_NAT IP6_NF_TARGET_MASQUERADE
@@ -112,6 +138,7 @@ $docker_support && {
 	for opt in "${disable_opts[@]}"; do
 		./scripts/config --file "$cfg_file" -d "$opt"
 	done
+	make ARCH=arm64 olddefconfig O=out
 }
 
 Start=$(date +"%s")
