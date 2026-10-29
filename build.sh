@@ -83,6 +83,7 @@ $no_thinlto && {
 
 $with_ksu && {
 	./scripts/config --file out/.config -e KSU
+	./scripts/config --file out/.config -e KSU_MANUAL_HOOK
 	./scripts/config --file out/.config -d KSU_DEBUG
 }
 

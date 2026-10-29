@@ -79,9 +79,9 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     zstd \
     --fix-missing && \
-    wget http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.1_amd64.deb && \
-    dpkg -i libtinfo5_6.3-2ubuntu0.1_amd64.deb && \
-    rm libtinfo5_6.3-2ubuntu0.1_amd64.deb && \
+    wget http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.3_amd64.deb && \
+    dpkg -i libtinfo5_6.3-2ubuntu0.3_amd64.deb && \
+    rm libtinfo5_6.3-2ubuntu0.3_amd64.deb && \
     apt-get full-upgrade -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
